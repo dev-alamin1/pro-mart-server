@@ -65,7 +65,35 @@ async function run()
         return res.send({accessToken:''});
     });
 
-    
+     /*
+    |-----------------------------------
+    |  Fetch Product info from database 
+    |---------------------------------
+    */
+
+    // get all categories information
+    app.get('/categoires',async(req,res)=>{
+        const query = {};
+        const categories = await categoriesCollection.find(query).toArray();
+        return res.send(categories)
+    })
+
+    // get a single category name by category id
+    app.get('/categoryinfo',async(req,res)=>{
+        const id = req.query.id;
+        const query = {_id:ObjectId(id)}
+        const category = await categoriesCollection.findOne(query);
+        return res.send(category)
+    })
+
+    // get a single product by category id 
+    app.get('/category/:id',async(req,res)=>{
+        const id = req.params.id;
+        const query ={category_id:id};
+        const products = await productsCollection.find(query).toArray();
+        return res.send(products);
+    })
+
     }
     finally{
 
