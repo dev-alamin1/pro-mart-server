@@ -105,12 +105,22 @@ async function run()
     app.post('/store/booking/product',async(req,res)=>{
         const productInfo = req.body;
         productInfo.date = new Date();
-        productInfo.sellStatus ='unsold';
         const result = await bookingsCollection.insertOne(productInfo);
         console.log(result)
         return res.send(result);
 
     });
+
+    //get orders by user email 
+    app.get('/orders',async(req,res)=>{
+        const email = req.query.email;
+        const query = {
+            email : email
+        }
+
+        const orders = await bookingsCollection.find(query).toArray();
+        return res.send(orders);
+    })
 
     }
     finally{
