@@ -26,7 +26,7 @@ async function run()
     */
     
     const usersCollection= client.db('promart').collection('users')
-    
+    const categoriesCollection= client.db('promart').collection('categories')
 
         
     /*
@@ -63,8 +63,6 @@ async function run()
 
         return res.send({accessToken:''});
     });
-
-    
 
     
 
