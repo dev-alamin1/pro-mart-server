@@ -44,6 +44,22 @@ async function run()
         res.send(result);
     })
 
+     /*
+    |-----------------------------------
+    |  Get all buyers ( user)
+    |---------------------------------
+    */
+
+    app.get('/buyers',async(req,res)=>{
+        const query = {
+            role:'buyer'
+        }
+
+        const allbuyer = await usersCollection.find(query).toArray();
+        return res.send(allbuyer)
+    });
+
+
     /*
     |-----------------------------------
     |  Jwt token when user register or login
