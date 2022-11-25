@@ -28,6 +28,7 @@ async function run()
     const usersCollection= client.db('promart').collection('users')
     const productsCollection= client.db('promart').collection('products')
     const categoriesCollection= client.db('promart').collection('categories')
+    const bookingsCollection = client.db('promart').collection('bookings')
 
         
     /*
@@ -93,6 +94,23 @@ async function run()
         const products = await productsCollection.find(query).toArray();
         return res.send(products);
     })
+
+     /*
+    |-----------------------------------
+    |  Product Booking Implementation
+    |---------------------------------
+    */
+
+    //store booked product
+    app.post('/store/booking/product',async(req,res)=>{
+        const productInfo = req.body;
+        productInfo.date = new Date();
+        productInfo.sellStatus ='unsold';
+        const result = await bookingsCollection.insertOne(productInfo);
+        console.log(result)
+        return res.send(result);
+
+    });
 
     }
     finally{
