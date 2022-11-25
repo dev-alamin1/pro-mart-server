@@ -26,6 +26,7 @@ async function run()
     */
     
     const usersCollection= client.db('promart').collection('users')
+    const productsCollection= client.db('promart').collection('products')
     const categoriesCollection= client.db('promart').collection('categories')
 
         
@@ -65,7 +66,6 @@ async function run()
     });
 
     
-
     }
     finally{
 
