@@ -15,6 +15,30 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSOWRD}@cluster0.mttjtbw.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
+     /*
+    |-----------------------------------
+    |  JWT Verify 
+    |---------------------------------
+    */
+
+    function jwtTokenVerify(req, res, next){
+
+        const authHeader = req.headers.authorization;
+        if(!authHeader){
+            return res.status(401).send('unauthorized access !');
+        }
+        const token = authHeader.split(' ')[1];
+
+        jwt.verify(token, process.env.ACCESS_TOKEN, function(err, decoded){
+            if(err){
+                return res.status(403).send({message: 'forbidden access !'})
+            }
+            req.decoded = decoded;
+            next();
+        })
+    }
+
 async function run()
 {
     try{
@@ -81,7 +105,7 @@ async function run()
 
     app.post('/addUser', async(req, res) =>{
         const user = req.body;
-        console.log(user);
+        // console.log(user);
         const result = await usersCollection.insertOne(user);
         res.send(result);
     })
@@ -92,7 +116,7 @@ async function run()
     |---------------------------------
     */
 
-    app.get('/buyers',async(req,res)=>{
+    app.get('/buyers',jwtTokenVerify,async(req,res)=>{
         const query = {
             role:'buyer'
         }
@@ -108,7 +132,8 @@ async function run()
     |---------------------------------
     */
 
-    app.get('/sellers',async(req,res)=>{
+    app.get('/sellers',jwtTokenVerify,async(req,res)=>{
+        
         const query = {
             role:'seller'
         }
@@ -190,8 +215,15 @@ async function run()
     */
 
      //get products by seller email 
-     app.get('/products',async(req,res)=>{
+     app.get('/products',jwtTokenVerify,async(req,res)=>{
+
         const email = req.query.email;
+
+        if(email !== req.decoded.email)
+        {
+            return res.status(403).send({message : 'forbidded acees !'})
+        }
+
         const query = {
             sellerEmail : email
         }
@@ -211,14 +243,21 @@ async function run()
         const productInfo = req.body;
         productInfo.date = new Date();
         const result = await bookingsCollection.insertOne(productInfo);
-        console.log(result)
+        // console.log(result)
         return res.send(result);
 
     });
 
     //get orders by user email 
-    app.get('/orders',async(req,res)=>{
+    app.get('/orders',jwtTokenVerify,async(req,res)=>{
+
         const email = req.query.email;
+
+        if(email !== req.decoded.email)
+        {
+            return res.status(403).send({message : 'forbidded acees !'})
+        }
+        
         const query = {
             email : email
         }
