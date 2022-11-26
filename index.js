@@ -53,6 +53,7 @@ async function run()
     const productsCollection= client.db('promart').collection('products')
     const categoriesCollection= client.db('promart').collection('categories')
     const bookingsCollection = client.db('promart').collection('bookings')
+    const sellerVerificationCollection = client.db('promart').collection('sellerVerifications')
 
     
     /*
@@ -143,6 +144,24 @@ async function run()
     });
 
 
+    app.post('/seller/verification',async(req,res)=>{
+        const seller = req.body;
+        const query = {
+            email:seller.email
+        }
+
+        // check already sent verifaction request or not 
+        const verified = await sellerVerificationCollection.find(query).toArray();
+        if(verified.length>0)
+        {
+            return res.send({message:'You have already sent a verification request !'})
+        }
+
+        const result = await sellerVerificationCollection.insertOne(seller);
+        return res.send(result);
+    });
+
+
     /*
     |-----------------------------------
     |  Jwt token when user register or login
@@ -207,6 +226,15 @@ async function run()
         return res.send(result);
     });
 
+
+
+    app.delete('/delete/product/:id', jwtTokenVerify, async (req, res) => {
+        
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const result = await productsCollection.deleteOne(filter);
+        res.send(result);
+    })
 
       /*
     |------------------------------------------------------
