@@ -30,7 +30,49 @@ async function run()
     const categoriesCollection= client.db('promart').collection('categories')
     const bookingsCollection = client.db('promart').collection('bookings')
 
-        
+    
+    /*
+    |------------------------------------
+    |  check admin or not ( useAdmin hook)
+    |------------------------------------
+    */
+
+    app.get('/admin/:email', async (req, res) => {
+        const email = req.params.email;
+        const query = { email }
+        const user = await usersCollection.findOne(query);
+        res.send({ isAdmin: user?.role === 'admin' });
+    })
+
+
+    /*
+    |------------------------------------
+    |  check seller or not ( useSeller hook)
+    |------------------------------------
+    */
+
+    app.get('/seller/:email', async (req, res) => {
+        const email = req.params.email;
+        const query = { email }
+        const user = await usersCollection.findOne(query);
+        res.send({ isSeller: user?.role === 'seller' });
+    })
+
+
+    /*
+    |------------------------------------
+    |  check buyer or not ( useBuyer hook)
+    |------------------------------------
+    */
+
+    app.get('/buyer/:email', async (req, res) => {
+        const email = req.params.email;
+        const query = { email }
+        const user = await usersCollection.findOne(query);
+        res.send({ isBuyer: user?.role === 'buyer' });
+    })
+
+
     /*
     |-----------------------------------
     |  Store user info when register or signup
@@ -57,6 +99,22 @@ async function run()
 
         const allbuyer = await usersCollection.find(query).toArray();
         return res.send(allbuyer)
+    });
+
+
+     /*
+    |-----------------------------------
+    |  Get all seller 
+    |---------------------------------
+    */
+
+    app.get('/sellers',async(req,res)=>{
+        const query = {
+            role:'seller'
+        }
+
+        const allseller = await usersCollection.find(query).toArray();
+        return res.send(allseller)
     });
 
 
@@ -109,6 +167,37 @@ async function run()
         const query ={category_id:id};
         const products = await productsCollection.find(query).toArray();
         return res.send(products);
+    })
+
+
+     /*
+    |-----------------------------------
+    |  Product Store on Database Implementation
+    |---------------------------------
+    */
+    
+    app.post('/store_products',async(req,res)=>{
+        const product = req.body;
+        const result = await productsCollection.insertOne(product);
+        return res.send(result);
+    });
+
+
+      /*
+    |------------------------------------------------------
+    |  Get all matching products ( filter by seller email)
+    |------------------------------------------------------
+    */
+
+     //get products by seller email 
+     app.get('/products',async(req,res)=>{
+        const email = req.query.email;
+        const query = {
+            sellerEmail : email
+        }
+
+        const myProducts = await productsCollection.find(query).toArray();
+        return res.send(myProducts);
     })
 
      /*
