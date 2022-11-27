@@ -129,7 +129,7 @@ async function run()
 
      /*
     |-----------------------------------
-    |  Get all seller 
+    |   seller 
     |---------------------------------
     */
 
@@ -143,6 +143,9 @@ async function run()
         return res.send(allseller)
     });
 
+
+
+    // seller verification apply 
 
     app.post('/seller/verification',async(req,res)=>{
         const seller = req.body;
@@ -161,6 +164,66 @@ async function run()
         return res.send(result);
     });
 
+
+    // seller verification check (hooks)
+
+    app.get('/checkSellerVerify',async(req,res)=>{
+        const email = req.query.email;
+        const query = {
+            email: email
+        }
+        const seller = await usersCollection.findOne(query);
+        return res.send(seller);
+    });
+
+
+   /*
+    |-----------------------------------
+    |  Get all unverified seller
+    |---------------------------------
+    */
+    app.get('/unverifiedsellers',async(req,res)=>{
+
+        // const query = {
+        //     verified : false
+        // }
+
+        // console.log(query)
+
+        const unVeriFiedSellers = await sellerVerificationCollection.find({}).toArray();
+
+        // console.log(unVeriFiedSellers);
+
+        return  res.send(unVeriFiedSellers);
+
+    });
+
+
+     /*
+    |-----------------------------------
+    |  verify seller from admin 
+    |---------------------------------
+    */
+
+    app.put('/verify_seller',jwtTokenVerify,async(req,res)=>{
+         const email = req.query.email;
+         const filter = {
+            email: email
+         }
+
+         const options = { upsert: true };
+
+         const updateDoc = {
+            $set: {
+                verified:true
+            },
+          };
+
+        const result = await usersCollection.updateOne(filter, updateDoc, options);
+        console.log(result);
+        return res.json(result)
+
+    });
 
     /*
     |-----------------------------------
