@@ -225,6 +225,16 @@ async function run()
 
     });
 
+    app.get('/deleteSellerVerification',jwtTokenVerify,async(req,res)=>{
+        const email = req.query.email;
+        const query = {
+           email: email
+        }
+
+        const result = await sellerVerificationCollection.deleteOne(query);
+        return res.send(result);
+    });
+
     /*
     |-----------------------------------
     |  Jwt token when user register or login
