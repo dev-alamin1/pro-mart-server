@@ -129,10 +129,11 @@ async function run()
 
      /*
     |-----------------------------------
-    |   seller 
+    |   seller api area
     |---------------------------------
     */
 
+    // get all seller 
     app.get('/sellers',jwtTokenVerify,async(req,res)=>{
         
         const query = {
@@ -176,6 +177,15 @@ async function run()
         return res.send(seller);
     });
 
+
+    // seller delete api 
+    app.delete('/sellers/:id', jwtTokenVerify, async (req, res) => {
+        
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const result = await usersCollection.deleteOne(filter);
+        res.send(result);
+    })
 
    /*
     |-----------------------------------
