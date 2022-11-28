@@ -54,6 +54,7 @@ async function run()
     const categoriesCollection= client.db('promart').collection('categories')
     const bookingsCollection = client.db('promart').collection('bookings')
     const sellerVerificationCollection = client.db('promart').collection('sellerVerifications')
+    const reportedProductCollection = client.db('promart').collection('reportedProducts')
 
     
     /*
@@ -125,6 +126,16 @@ async function run()
         const allbuyer = await usersCollection.find(query).toArray();
         return res.send(allbuyer)
     });
+
+     // buyers delete api 
+     app.delete('/buyers/:id', jwtTokenVerify, async (req, res) => {
+        
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const result = await usersCollection.deleteOne(filter);
+        res.send(result);
+    })
+
 
 
      /*
@@ -261,6 +272,7 @@ async function run()
         if(user)
         {
             const token = jwt.sign({email},process.env.ACCESS_TOKEN,{expiresIn:'2h'});
+            
             return res.send({accessToken:token})
         }
 
@@ -342,6 +354,80 @@ async function run()
         const myProducts = await productsCollection.find(query).toArray();
         return res.send(myProducts);
     })
+
+
+    // advertise product 
+
+    app.put('/advertise/product/:id', jwtTokenVerify,async (req, res) => {
+        
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+    
+        const options = { upsert: true };
+
+        const updateDoc = {
+           $set: {
+            advertiseStatus:true
+           },
+         };
+
+       const result = await productsCollection.updateOne(filter, updateDoc, options);
+       console.log(result);
+       return res.json(result)
+    })
+
+    //get all advertise products
+
+    app.get('/advertised_products',async(req,res)=>{
+        const query = {
+            advertiseStatus : true
+        };
+
+        const result = await productsCollection.find(query).toArray();
+        return res.json(result);
+
+    })
+
+
+    // report to admin 
+
+    app.post('/report/product',async(req,res)=>{
+
+        const reportedProduct = req.body;
+        const result = await reportedProductCollection.insertOne(reportedProduct);
+        return res.send(result);
+
+    });
+
+
+    app.get('/all/reported/products',async(req,res)=>{
+        const query = {}
+        const reportedProducts = await reportedProductCollection.find(query).toArray();
+        return res.send(reportedProducts)
+    })
+
+
+    // delete reported product from reportedCollection
+
+    app.delete('/reported/product/delete/:id', jwtTokenVerify, async (req, res) => {
+        
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const result = await reportedProductCollection.deleteOne(filter);
+        res.send(result);
+    })
+
+    // reported product collection theke first delete hobe , erpor 
+    // nicher api er sahajje main product theke sei product k delete kora jabe
+
+    app.delete('/product/delete/:id', jwtTokenVerify, async (req, res) => {
+        
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const result = await productsCollection.deleteOne(filter);
+        res.send(result);
+    })
+
 
      /*
     |-----------------------------------
