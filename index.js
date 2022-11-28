@@ -241,7 +241,7 @@ async function run()
           };
 
         const result = await usersCollection.updateOne(filter, updateDoc, options);
-        console.log(result);
+        // console.log(result);
         return res.json(result)
 
     });
@@ -372,7 +372,7 @@ async function run()
          };
 
        const result = await productsCollection.updateOne(filter, updateDoc, options);
-       console.log(result);
+    //    console.log(result);
        return res.json(result)
     })
 
