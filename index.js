@@ -57,6 +57,16 @@ async function run()
     const reportedProductCollection = client.db('promart').collection('reportedProducts')
 
     
+    const verifyAdmin = async (req, res, next) =>{
+        const decodedEmail = req.decoded.email;
+        const query = { email: decodedEmail };
+        const user = await usersCollection.findOne(query);
+
+        if (user?.role !== 'admin') {
+            return res.status(403).send({ message: 'forbidden access' })
+        }
+       next();
+    }
     /*
     |------------------------------------
     |  check admin or not ( useAdmin hook)
@@ -118,7 +128,7 @@ async function run()
     |---------------------------------
     */
 
-    app.get('/buyers',jwtTokenVerify,async(req,res)=>{
+    app.get('/buyers',jwtTokenVerify,verifyAdmin,async(req,res)=>{
         const query = {
             role:'buyer'
         }
@@ -145,7 +155,7 @@ async function run()
     */
 
     // get all seller 
-    app.get('/sellers',jwtTokenVerify,async(req,res)=>{
+    app.get('/sellers',jwtTokenVerify,verifyAdmin,async(req,res)=>{
         
         const query = {
             role:'seller'
@@ -190,7 +200,7 @@ async function run()
 
 
     // seller delete api 
-    app.delete('/sellers/:id', jwtTokenVerify, async (req, res) => {
+    app.delete('/sellers/:id', jwtTokenVerify,verifyAdmin, async (req, res) => {
         
         const id = req.params.id;
         const filter = { _id: ObjectId(id) };
@@ -226,7 +236,7 @@ async function run()
     |---------------------------------
     */
 
-    app.put('/verify_seller',jwtTokenVerify,async(req,res)=>{
+    app.put('/verify_seller',jwtTokenVerify,verifyAdmin,async(req,res)=>{
          const email = req.query.email;
          const filter = {
             email: email
@@ -246,7 +256,7 @@ async function run()
 
     });
 
-    app.get('/deleteSellerVerification',jwtTokenVerify,async(req,res)=>{
+    app.get('/deleteSellerVerification',jwtTokenVerify,verifyAdmin,async(req,res)=>{
         const email = req.query.email;
         const query = {
            email: email
