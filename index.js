@@ -365,6 +365,12 @@ async function run()
         return res.send(myProducts);
     })
 
+    //get all product for carousel slider 
+    app.get('/all/phones',async(req,res)=>{
+        const allPhones = await productsCollection.find({}).toArray();
+        return res.send(allPhones)
+    });
+
 
     // advertise product 
 
@@ -397,6 +403,17 @@ async function run()
         return res.json(result);
 
     })
+
+    // get product details from client side 
+
+    app.get('/addvertise/product/:id',async(req,res)=>{
+         const id = req.params.id;
+         const query = {
+            _id:ObjectId(id)
+         }
+         const addVertisedProductInfo = await productsCollection.findOne(query);
+        return res.send(addVertisedProductInfo);
+    });
 
 
     // report to admin 
@@ -472,6 +489,17 @@ async function run()
         const orders = await bookingsCollection.find(query).toArray();
         return res.send(orders);
     })
+
+    // check roll
+
+    app.get('/check_roll',async(req,res)=>{
+        const email = req.query.email;
+        const query = {
+            email:email
+        }
+        const result = await usersCollection.findOne(query);
+        console.log("email = ",result)
+    });
 
     }
     finally{
